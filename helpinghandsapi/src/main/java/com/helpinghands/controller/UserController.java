@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,7 +28,6 @@ import com.helpinghands.util.MessageConstants.ErrorMessages;
  */
 @RestController
 @CrossOrigin
-@RequestMapping("/users")
 public class UserController {
 	
 	/**
@@ -50,8 +48,8 @@ public class UserController {
 	 * @param user
 	 * @return ResponseDTO with the status specifying if the operation was successful
 	 */
-	@PostMapping("/register")
-	public ResponseDTO registerUser(@RequestBody AppUsersDto user) {
+	@PostMapping("/apidb/mysignup")
+	public ResponseDTO signupUser(@RequestBody AppUsersDto user) {
 		ResponseDTO responseDTO = new ResponseDTO(ResponseDTO.Status.SUCCESS, null, MessageConstants.USER_ADD_SUCCESS);
 		try {
 			userService.insertUser(user);
@@ -62,7 +60,7 @@ public class UserController {
 		return responseDTO;
 	}
 
-	@PostMapping("/login")
+	@PostMapping("/apidb/mylogin")
 	public LoginResponseDto authenticateUser(@RequestBody LoginRequestDto login) {
 		LoginResponseDto loginResponseDTO = new LoginResponseDto(MessageConstants.LOGIN_SUCCESS);
 		try {
@@ -87,7 +85,7 @@ public class UserController {
 	 * @param username
 	 * @return ResponseDTO with the result being the User with the specified username
 	 */
-	@GetMapping("/user-Profile")
+	@GetMapping("/apidb/myprofile")
 	public ResponseDTO getUserDetails(@RequestParam(value = "username", required = true) String username) {
 		User result = null;
 		ResponseDTO responseDTO = new ResponseDTO(ResponseDTO.Status.SUCCESS, null, MessageConstants.USER_RETRIEVE_SUCCESS);
@@ -108,7 +106,7 @@ public class UserController {
 	 * @param user
 	 * @return ResponseDTO with the status specifying if the operation was successful
 	 */
-	@PostMapping("/update-user")
+	@PostMapping("/apidb/updateuser")
 	public ResponseDTO updateUser(@RequestBody AppUsersDto user) {
 		ResponseDTO responseDTO = new ResponseDTO(ResponseDTO.Status.SUCCESS, null, MessageConstants.USER_UPDATE_SUCCESS);
 		try {
@@ -125,7 +123,7 @@ public class UserController {
 	 * @param passwordDetails
 	 * @return ResponseDTO with the result indicating whether the password change was successful
 	 */
-	@PostMapping("/change-password")
+	@PostMapping("/apidb/myreset")
 	public ResponseDTO changePassword(@RequestBody PasswordDto passwordDetails) {
 		Boolean result = null;
 		ResponseDTO responseDTO = new ResponseDTO(ResponseDTO.Status.SUCCESS, result, MessageConstants.PASSWORD_CHANGE_SUCCESS);
@@ -147,8 +145,8 @@ public class UserController {
 	 * @param username
 	 * @return ResponseDTO with the result specifying if the operation was successful
 	 */
-	@DeleteMapping("/delete-user")
-	@PreAuthorize("hasAuthority('ADMIN_USER')")
+	@DeleteMapping("/apidb/deleteUser")
+	@PreAuthorize("hasAuthority('Admin')")
 	public ResponseDTO deleteUser(@RequestParam(value = "username", required = true) String username) {
 		ResponseDTO responseDTO = new ResponseDTO(ResponseDTO.Status.SUCCESS, null, MessageConstants.USER_DELETE_SUCCESS);
 		try {

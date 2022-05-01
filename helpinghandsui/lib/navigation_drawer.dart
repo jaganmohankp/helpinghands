@@ -1,19 +1,38 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:helpinghandsui/config.dart';
 import 'package:helpinghandsui/drawer_item.dart';
-import 'package:helpinghandsui/pages/people.dart';
+import 'package:helpinghandsui/models/userlogin.dart';
+import 'package:helpinghandsui/pages/mydonationlist.dart';
+import 'package:helpinghandsui/pages/myrequestlist.dart';
 import 'package:snippet_coder_utils/hex_color.dart';
+import 'package:http/http.dart' as http;
+
 class NavigationDrawer extends StatefulWidget {
-  String token;
-  NavigationDrawer({required this.token});
+  String username;
+  String email;
+  String gender;
+  String accessToken;
+  NavigationDrawer({required this.username,required this.email,required this.gender,required this.accessToken});
   //const NavigationDrawer({Key? key}) : super(key: key);
 
   @override
-  State<NavigationDrawer> createState() => _NavigationDrawerState(token: token);
+  State<NavigationDrawer> createState() => _NavigationDrawerState(username: username,email:email,gender:gender,accessToken:accessToken);
 }
 
 class _NavigationDrawerState extends State<NavigationDrawer> {
-  String? token;
-  _NavigationDrawerState({required this.token});
+  String username;
+  String email;
+  String gender;
+  String accessToken;
+  _NavigationDrawerState({required this.username,required this.email,required this.gender,required this.accessToken});
+
+  @override
+  initState(){
+    
+  }
+
   Widget build(BuildContext context) {
     return Drawer(
       child: Material(
@@ -27,16 +46,24 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
               const Divider(thickness: 1, height: 10, color: Colors.white,),
               const SizedBox(height: 30,),
 
-              DrawerItem(
-                name: 'My Donations',
-                icon: Icons.volunteer_activism,
-                onPressed: ()=> onItemPressed(context, index: 0),
+              InkWell(
+                onTap: ()=>{onItemPressed(context, index: 0)
+                },
+                child: DrawerItem(
+                  name: 'My Donations',
+                  icon: Icons.volunteer_activism,
+                  onPressed: ()=> onItemPressed(context, index: 0),
+                ),
               ),
               const SizedBox(height: 30,),
-              DrawerItem(
-                  name: 'My Request',
-                  icon: Icons.volunteer_activism,
-                  onPressed: ()=> onItemPressed(context, index: 1)
+              InkWell(
+                onTap: ()=> {onItemPressed(context, index: 1)
+                },
+                child: DrawerItem(
+                    name: 'My Request',
+                    icon: Icons.volunteer_activism,
+                    onPressed: ()=> onItemPressed(context, index: 1)
+                ),
               ),
 
               const SizedBox(height: 30,),
@@ -44,10 +71,14 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
               const Divider(thickness: 1, height: 10, color: Colors.white,),
               const SizedBox(height: 30,),
 
-              DrawerItem(
-                  name: 'Log out',
-                  icon: Icons.logout,
-                  onPressed: ()=> onItemPressed(context, index: 2)
+              InkWell(
+                onTap: ()=> {onItemPressed(context, index: 2)
+                },
+                child: DrawerItem(
+                    name: 'Log out',
+                    icon: Icons.logout,
+                    onPressed: ()=> onItemPressed(context, index: 2)
+                ),
               ),
 
             ],
@@ -57,20 +88,84 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
     );
   }
 
-  void onItemPressed(BuildContext context, {required int index}){
+  Future<void> onItemPressed(BuildContext context, {required int index}) async {
     Navigator.pop(context);
+    List <Item> myitem=[];
+    List <Item> myreqitem=[];
+    List <Item> mydonitem=[];
+
+        String reqtoken = 'Bearer '+accessToken;
+        final response = await http.post(
+          //Uri.parse('http://192.168.1.6:7000/apidb/mydrawer'),
+          Uri.parse(Config.apiURL+ Config.apimydrawer),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': reqtoken
+          },
+          body: jsonEncode(<String, String>{
+            "email": email,
+            "username": username,
+            "gender": gender
+          }),
+        );
+        if (response.statusCode == 200) {
+          // If the server did return a 201 CREATED response,
+          // then parse the JSON.
+          print("submitting drawer response 200" + response.body);
+          UserLogin userlogin = UserLogin.fromJson(jsonDecode(response.body));
+          print("submitting drawer response 200" + userlogin.myresult);
+          print( userlogin.items.length);
+          myitem.clear();
+          myreqitem.clear();
+          mydonitem.clear();
+
+
+          myitem = userlogin.items;
+          if(userlogin.items.length > 0){
+            myreqitem = [];
+            mydonitem = [];
+
+            myitem.forEach((element) async {
+              if(element.itemtype == 'Requesting'){
+                print("Adding  request item ");
+                myreqitem.add(element);
+              }
+              if(element.itemtype == 'Donating'){
+                print("Adding  Donate item ");
+                mydonitem.add(element);
+              }
+
+            });
+          }else{
+            print("else blk ");
+            myitem = userlogin.items;
+            myreqitem = userlogin.items;
+            mydonitem = userlogin.items;
+          }
+
+
+          print("request item");
+          print( myreqitem.length);
+          print("donated item");
+          print( mydonitem.length);
+
+
+        }
+
+
 
     switch(index){
       case 0:
-        Navigator.push(context, MaterialPageRoute(builder: (context) =>  People()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) =>  MyDonationList(username:username,email:email,gender:gender,accessToken:accessToken,myitem:mydonitem)));
         break;
       case 1:
-        Navigator.push(context, MaterialPageRoute(builder: (context) =>  People()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) =>  MyRequestList(username:username,email:email,gender:gender,accessToken:accessToken,myitem:myreqitem)));
         break;
       case 2:
+
         Navigator.pushNamedAndRemoveUntil(
           context,
-          '/login',
+          '/',
               (route) => false,
         );
         break;
@@ -80,21 +175,35 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
 
   Widget headerWidget() {
     const url = 'https://media.istockphoto.com/photos/learn-to-love-yourself-first-picture-id1291208214?b=1&k=20&m=1291208214&s=170667a&w=0&h=sAq9SonSuefj3d4WKy4KzJvUiLERXge9VgZO-oqKUOo=';
+    String profileimgstr = 'assets/images/profile.png';
+    if(gender == 'male'){
+       profileimgstr = 'assets/images/male.png';
+    }else if (gender == 'female'){
+       profileimgstr = 'assets/images/female.png';
+    }else{
+       profileimgstr = 'assets/images/profile.png';
+    }
+
+
     return Row(
       children: [
-        const CircleAvatar(
-          radius: 40,
-          //backgroundImage: NetworkImage(url),
-          backgroundImage:AssetImage('assets/images/'+'profile.jpg'),
-        ),
+        Hero(
+            tag: profileimgstr,
+            child: Container(
+                height: 100.0,
+                width: 100.0,
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: AssetImage(profileimgstr),
+                        fit: BoxFit.contain)))),
         const SizedBox(width: 20,),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(token!, style: TextStyle(fontSize: 14, color: Colors.white)),
+              Text(username, style: TextStyle(fontSize: 14, color: Colors.white)),
               SizedBox(height: 10,),
-              const Text('username@email.com',
+              Text(email,
                     overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   softWrap: false,
@@ -107,6 +216,9 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
     );
 
   }
+}
+
+class _imageToShow {
 }
 
 

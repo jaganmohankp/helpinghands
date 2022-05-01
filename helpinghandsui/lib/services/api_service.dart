@@ -21,7 +21,7 @@ class APIService {
 
     var url = Uri.http(
       Config.apiURL,
-      Config.loginAPI,
+      Config.apimylogin,
     );
 
     var response = await client.post(
@@ -52,7 +52,7 @@ class APIService {
 
     var url = Uri.http(
       Config.apiURL,
-      Config.registerAPI,
+      Config.apimysignup,
     );
 
     var response = await client.post(
@@ -74,7 +74,7 @@ class APIService {
       'Authorization': 'Basic ${loginDetails!.data.token}'
     };
 
-    var url = Uri.http(Config.apiURL, Config.userProfileAPI);
+    var url = Uri.http(Config.apiURL, Config.apimyprofile);
 
     var response = await client.get(
       url,

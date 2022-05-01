@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:helpinghandsui/models/userlogin.dart';
 import 'package:helpinghandsui/pages/home_page.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:snippet_coder_utils/ProgressHUD.dart';
@@ -9,7 +10,7 @@ import 'package:snippet_coder_utils/hex_color.dart';
 import 'package:http/http.dart' as http;
 import 'package:helpinghandsui/config.dart';
 
-import '../models/userlogin.dart';
+import 'package:helpinghandsui/models/NotifyItem.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -24,6 +25,7 @@ class _LoginState extends State<Login> {
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   String? email;
   String? password;
+
 
   @override
   void initState() {
@@ -231,7 +233,8 @@ class _LoginState extends State<Login> {
                 if (lmyemail.trim() != "" && lmypass.trim() != "") {
                   print("submitting login");
                   final response = await http.post(
-                    Uri.parse('http://192.168.1.6:7000/apidb/mylogin'),
+                   // Uri.parse('http://192.168.1.6:7000/apidb/mylogin'),
+                      Uri.parse( Config.apiURL+Config.apimylogin),
                     headers: <String, String>{
                       'Content-Type': 'application/json; charset=UTF-8',
                     },
@@ -244,34 +247,91 @@ class _LoginState extends State<Login> {
                   if (response.statusCode == 200) {
                     // If the server did return a 201 CREATED response,
                     // then parse the JSON.
-                    print("submitting login response 200" + response.body);
+                    print(response.statusCode);
+                    print("submitting login response "  + response.body);
                     UserLogin userlogin = UserLogin.fromJson(jsonDecode(response.body));
-                    print("submitting login response 200" + userlogin.myresult);
-                    print("submitting login response 200" + userlogin.email);
-                    print("submitting login response 200" + userlogin.accessToken);
+                    print("submitting login response " + userlogin.myresult);
+                    print("submitting login response " + userlogin.username);
+                    print("submitting login response " + userlogin.email);
+                    print("submitting login response " + userlogin.gender);
+                    print("submitting login response " + userlogin.accessToken);
+                    print("submitting login response " );
                     //userToken.token='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNhcmExMjNAZ21haWwuY29tIiwiaWF0IjoxNjUwNTQ0ODk4LCJleHAiOjE2NTA1NDg0OTh9.vAMp_1PGFt2AbNswtd9RKL5Rhbl2BSowVUohC8snUDg';
-                        if (userlogin.myresult == 'Authenticated') {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => HomePage(myvar: userlogin.accessToken),
-                            ),
-                          );
-                        } else {
-                           FormHelper.showSimpleAlertDialog(
-                            context,
-                            Config.appName,
-                            userlogin.myresult,
-                            "OK",
-                                () {
-                             Navigator.pushNamedAndRemoveUntil(
-                                context,
-                                '/',
-                                    (route) => false,
+
+                    List <Item> myitem = userlogin.items;
+                    List <Item> eduitems=[] ;
+                    List <Item> clothitems=[] ;
+                    List <Item> fooditems=[] ;
+                    List <Item> homeutilsitems=[] ;
+                    myitem.forEach((element) {
+                      if(element.mcat == 'Education'){
+                        eduitems.add(element);
+                      }
+                      if(element.mcat == 'Clothes'){
+                        clothitems.add(element);
+                      }
+                      if(element.mcat == 'Food'){
+                        fooditems.add(element);
+                      }
+                      if(element.mcat == 'HomeUtils'){
+                        homeutilsitems.add(element);
+                      }
+                    });
+                            if (userlogin.myresult.contains('Authenticated') ) {
+                              //Api for Notification
+                              final response = await http.post(
+                                // Uri.parse('http://192.168.1.6:7000/apidb/mylogin'),
+                                Uri.parse( Config.apiURL+Config.apimynotify),
+                                headers: <String, String>{
+                                  'Content-Type': 'application/json; charset=UTF-8',
+                                },
+                                body: jsonEncode(<String, String>{
+                                  "username": userlogin.username
+
+                                }),
                               );
 
-                            },
-                          );
-                        }
+                              if (response.statusCode == 200) {
+                                print("submitting notification response " +
+                                    response.body);
+                                NotifyItem notifyItem = NotifyItem.fromJson(
+                                    jsonDecode(response.body));
+                                List <
+                                    NotificationsItem> notificationsItem = notifyItem
+                                    .notificationsItem;
+
+
+                                print(
+                                    "submitting login response Authenticated ");
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        HomePage(username: userlogin.username,
+                                            email: userlogin.email,
+                                            gender: userlogin.gender,
+                                            accessToken: userlogin.accessToken,
+                                            myitem: myitem,
+                                            notificationsItem: notificationsItem),
+                                  ),
+                                );
+                              }
+                            } else {
+                              print("submitting login response Not Authenticated " );
+                               FormHelper.showSimpleAlertDialog(
+                                context,
+                                Config.appName,
+                                userlogin.myresult,
+                                "OK",
+                                    () {
+                                 Navigator.pushNamedAndRemoveUntil(
+                                    context,
+                                    '/',
+                                        (route) => false,
+                                  );
+
+                                },
+                              );
+                            }
                   } else {
                     print("submitting login error 200");
                     // If the server did not return a 201 CREATED response,

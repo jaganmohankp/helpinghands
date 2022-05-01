@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/passwordreset_page.dart';
+import 'package:helpinghandsui/pages/passwordreset_page.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'services/shared_service.dart';
