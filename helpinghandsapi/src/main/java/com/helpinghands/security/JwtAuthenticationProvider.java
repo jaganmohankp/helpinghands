@@ -11,7 +11,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.helpinghands.entity.User;
+import com.helpinghands.entity.UserEntity;
 import com.helpinghands.util.MessageConstants.ErrorMessages;
 import com.helpinghands.exceptions.InvalidTokenException;
 
@@ -44,14 +44,14 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
 			throw new UserException("JWT Token is incorrect");
 		}
 		*/
-		User user = validator.validateUser(token);
-		if(user == null) {
+		UserEntity userEntity = validator.validateUser(token);
+		if(userEntity == null) {
 			throw new InvalidTokenException(ErrorMessages.INCORRECT_TOKEN);
 		}
 		//List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(jwtUser.getRole());
 		//List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(user.getRoles().get(0).getRoleName());
-		List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(user.getRole());
-		return new JwtUserDetails(user.getUsername(), user.getUserId(), token, grantedAuthorities);
+		List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(userEntity.getRole());
+		return new JwtUserDetails(userEntity.getUsername(), userEntity.getUserId(), token, grantedAuthorities);
 	}
 
 }

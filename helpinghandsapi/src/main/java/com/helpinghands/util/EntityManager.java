@@ -2,7 +2,7 @@ package com.helpinghands.util;
 
 
 import com.helpinghands.model.AppUsersDto;
-import com.helpinghands.entity.User;
+import com.helpinghands.entity.UserEntity;
 
 /**
  * 
@@ -27,13 +27,13 @@ public class EntityManager {
 	 * @param userDto
 	 * @return A User object with the parameters as specified within the DTO
 	 */
-	public static User transformUserDTO(AppUsersDto userDto) {
+	public static UserEntity transformUserDTO(AppUsersDto userDto) {
 
 		String username = userDto.getUserName();
 		String password = userDto.getPassword();
 		String usertype = "Normal";
 		String email = userDto.getEmail();
-		return new User(username, password, usertype, email);
+		return new UserEntity(username, password, usertype, email);
 	}
 	
 

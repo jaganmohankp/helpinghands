@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.helpinghands.entity.User;
+import com.helpinghands.entity.UserEntity;
 import com.helpinghands.service.UserService;
 import com.helpinghands.service.LoginService;
 import com.helpinghands.util.MessageConstants;
@@ -48,7 +48,7 @@ public class UserController {
 	 * @param user
 	 * @return ResponseDTO with the status specifying if the operation was successful
 	 */
-	@PostMapping("/apidb/mysignup")
+	@PostMapping("/userauth/mysignup")
 	public ResponseDTO signupUser(@RequestBody AppUsersDto user) {
 		ResponseDTO responseDTO = new ResponseDTO(ResponseDTO.Status.SUCCESS, null, MessageConstants.USER_ADD_SUCCESS);
 		try {
@@ -60,17 +60,17 @@ public class UserController {
 		return responseDTO;
 	}
 
-	@PostMapping("/apidb/mylogin")
+	@PostMapping("/userauth/mylogin")
 	public LoginResponseDto authenticateUser(@RequestBody LoginRequestDto login) {
 		LoginResponseDto loginResponseDTO = new LoginResponseDto(MessageConstants.LOGIN_SUCCESS);
 		try {
-			User user = loginService.authenticate(login);
-			String token = jwtGenerator.generateToken(login, user.getRole());
+			UserEntity userEntity = loginService.authenticate(login);
+			String token = jwtGenerator.generateToken(login, userEntity.getRole());
 
 			LoginResponseData data = new LoginResponseData();
-			data.setId(String.valueOf(user.getUserId()));
-			data.setUsername(user.getUsername());
-			data.setEmail(user.getEmail());
+			data.setId(String.valueOf(userEntity.getUserId()));
+			data.setUsername(userEntity.getUsername());
+			data.setEmail(userEntity.getEmail());
 			data.setToken(token);
 			data.setDate(DateUtil.getCurrentDateTime());
 		} catch (Exception e) {
@@ -85,9 +85,9 @@ public class UserController {
 	 * @param username
 	 * @return ResponseDTO with the result being the User with the specified username
 	 */
-	@GetMapping("/apidb/myprofile")
+	@GetMapping("/userauth/myprofile")
 	public ResponseDTO getUserDetails(@RequestParam(value = "username", required = true) String username) {
-		User result = null;
+		UserEntity result = null;
 		ResponseDTO responseDTO = new ResponseDTO(ResponseDTO.Status.SUCCESS, null, MessageConstants.USER_RETRIEVE_SUCCESS);
 		try {
 			result = userService.getUserDetails(username);
@@ -106,7 +106,7 @@ public class UserController {
 	 * @param user
 	 * @return ResponseDTO with the status specifying if the operation was successful
 	 */
-	@PostMapping("/apidb/updateuser")
+	@PostMapping("/userauth/updateuser")
 	public ResponseDTO updateUser(@RequestBody AppUsersDto user) {
 		ResponseDTO responseDTO = new ResponseDTO(ResponseDTO.Status.SUCCESS, null, MessageConstants.USER_UPDATE_SUCCESS);
 		try {
@@ -123,7 +123,7 @@ public class UserController {
 	 * @param passwordDetails
 	 * @return ResponseDTO with the result indicating whether the password change was successful
 	 */
-	@PostMapping("/apidb/myreset")
+	@PostMapping("/userauth/myreset")
 	public ResponseDTO changePassword(@RequestBody PasswordDto passwordDetails) {
 		Boolean result = null;
 		ResponseDTO responseDTO = new ResponseDTO(ResponseDTO.Status.SUCCESS, result, MessageConstants.PASSWORD_CHANGE_SUCCESS);
@@ -145,7 +145,7 @@ public class UserController {
 	 * @param username
 	 * @return ResponseDTO with the result specifying if the operation was successful
 	 */
-	@DeleteMapping("/apidb/deleteUser")
+	@DeleteMapping("/userauth/deleteUser")
 	@PreAuthorize("hasAuthority('Admin')")
 	public ResponseDTO deleteUser(@RequestParam(value = "username", required = true) String username) {
 		ResponseDTO responseDTO = new ResponseDTO(ResponseDTO.Status.SUCCESS, null, MessageConstants.USER_DELETE_SUCCESS);

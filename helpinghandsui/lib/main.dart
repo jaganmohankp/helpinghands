@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:helpinghandsui/pages/passwordreset_page.dart';
-import 'pages/login_page.dart';
-import 'pages/register_page.dart';
-import 'services/shared_service.dart';
+import 'package:helpinghandsui/services/shared_service.dart';
+import 'package:helpinghandsui/pages/login_page.dart';
+import 'package:helpinghandsui/pages/register_page.dart';
 
 Widget _defaultHome = const Login();
 //Widget _defaultHome =  HomePage();

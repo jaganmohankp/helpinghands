@@ -32,12 +32,29 @@ class _MyRequestListState extends State<MyRequestList> {
   String gender;
   String  accessToken;
   List <Item> myitem;
+  List <Item> myreqitem=[];
+  List <Item> mydonitem=[];
 
 
   _MyRequestListState({required this.username,required this.email,required this.gender,required this.accessToken,required this.myitem});
   @override
   void initState() {
     super.initState();
+    myreqitem.clear();
+    mydonitem.clear();
+    myitem.forEach((element)  {
+      if(element.recievername == username){
+        print("Adding  request item ");
+        myreqitem.add(element);
+      }
+      if(element.donorname == username){
+        print("Adding  Donate item ");
+        mydonitem.add(element);
+      }
+
+    });
+
+    myitem = myreqitem;
   }
 
   List items = [
@@ -71,13 +88,11 @@ class _MyRequestListState extends State<MyRequestList> {
                 padding: EdgeInsets.only(right: 20.0),
                 child: InkWell(
                   onTap: () async {
-                    List <Item> myitem=[];
-                    List <Item> myreqitem=[];
-                    List <Item> mydonitem=[];
+
 
                     String reqtoken = 'Bearer '+accessToken;
                     final response = await http.post(
-                      //Uri.parse('http://192.168.1.6:7000/apidb/mydrawer'),
+                      //Uri.parse('http://localhost:7000/apidb/mydrawer'),
                       Uri.parse(Config.apiURL+ Config.apimydrawer),
                       headers: <String, String>{
                         'Content-Type': 'application/json; charset=UTF-8',
@@ -106,12 +121,12 @@ class _MyRequestListState extends State<MyRequestList> {
                         myreqitem = [];
                         mydonitem = [];
 
-                        myitem.forEach((element) async {
-                          if(element.itemtype == 'Requesting'){
+                        myitem.forEach((element)  {
+                          if(element.recievername == username){
                             print("Adding  request item ");
                             myreqitem.add(element);
                           }
-                          if(element.itemtype == 'Donating'){
+                          if(element.donorname == username){
                             print("Adding  Donate item ");
                             mydonitem.add(element);
                           }
@@ -164,6 +179,8 @@ class _MyRequestListState extends State<MyRequestList> {
                 Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => UserItemDetail(
                         itemId: myitem[index].itemId,
+                        accessToken:accessToken,
+                        username:username,
                         imagepath: myitem[index].imagepath,
                         itemtype: myitem[index].itemtype,
                         itemname: myitem[index].itemname,
@@ -209,7 +226,7 @@ class _MyRequestListState extends State<MyRequestList> {
                                       image: AssetImage(myitem[index].imagepath),
                                       fit: BoxFit.contain)))),
                       SizedBox(height: 7.0),
-                      Text(myitem[index].itemtype,
+                      Text(myitem[index].donorname == username?"Donating":"Recieving",
                           style: TextStyle(
                               color: HexColor("283B71"),
                               fontFamily: 'Varela',
@@ -261,7 +278,8 @@ class _MyRequestListState extends State<MyRequestList> {
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => Requestuploaditem(username:username,email:email,gender:gender,accessToken:accessToken),
+              builder: (context) => Requestuploaditem(username:username,email:email,gender:gender,
+                  accessToken:accessToken),
             ),
           );
 

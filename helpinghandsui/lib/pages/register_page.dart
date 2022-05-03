@@ -328,7 +328,7 @@ class _RegisterState extends State<Register> {
                 }//end if
                 print("submitting login");
                 final response = await http.post(
-                  //Uri.parse('http://192.168.1.6:7000/apidb/mysignup'),
+                  //Uri.parse('http://localhost:7000/apidb/mysignup'),
                   Uri.parse(Config.apiURL+Config.apimysignup),
                   headers: <String, String>{
                     'Content-Type': 'application/json; charset=UTF-8',

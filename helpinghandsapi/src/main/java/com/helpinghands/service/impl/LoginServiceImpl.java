@@ -13,11 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.helpinghands.model.LoginRequestDto;
-import com.helpinghands.entity.ResetToken;
+import com.helpinghands.entity.ResetTokenEntity;
 import com.helpinghands.repository.ResetTokenRepository;
 import com.helpinghands.service.LoginService;
 import com.helpinghands.model.AppUsersDto;
-import com.helpinghands.entity.User;
+import com.helpinghands.entity.UserEntity;
 import com.helpinghands.repository.UserRepository;
 import com.helpinghands.util.AutomatedEmailer;
 import com.helpinghands.util.MessageConstants.EmailMessages;
@@ -41,23 +41,23 @@ public class LoginServiceImpl implements LoginService {
 	private static final String HOST_ADDRESS = "xxxxxxxxxxxxxxxxxx";
 	
 	@Override
-	public User authenticate(LoginRequestDto loginDetails) {
+	public UserEntity authenticate(LoginRequestDto loginDetails) {
 		// TODO Auto-generated method stub
-		User dbUser = userRepository.findByUsernameIgnoreCase(loginDetails.getUsername());
-		if(dbUser == null) {
+		UserEntity dbUserEntity = userRepository.findByUsernameIgnoreCase(loginDetails.getUsername());
+		if(dbUserEntity == null) {
 			throw new UserException(ErrorMessages.NO_SUCH_USER);
 		}
-		if(!BCrypt.checkpw(loginDetails.getPassword(), dbUser.getPassword())) {
+		if(!BCrypt.checkpw(loginDetails.getPassword(), dbUserEntity.getPassword())) {
 			throw new InvalidLoginException(ErrorMessages.INVALID_CREDENTIALS);
 		}
-		return dbUser;
+		return dbUserEntity;
 	}
 
 	@Override
 	public void resetPassword(AppUsersDto user) throws Exception {
 		// TODO Auto-generated method stub
-		User dbUser = userRepository.findByEmailIgnoreCase(user.getEmail());
-		if(dbUser == null) {
+		UserEntity dbUserEntity = userRepository.findByEmailIgnoreCase(user.getEmail());
+		if(dbUserEntity == null) {
 			throw new UserException(ErrorMessages.NO_SUCH_USER_EMAIL);
 		}
 		Calendar calendar = Calendar.getInstance();
@@ -65,25 +65,25 @@ public class LoginServiceImpl implements LoginService {
 		UUID uuid = UUID.randomUUID();
 		// servletContext.getContextPath() + 
 		URL url = new URL("http://" + HOST_ADDRESS + "/reset-password/" + uuid.toString());
-		ResetToken resetRequest = new ResetToken(dbUser.getUsername(), uuid.toString(), calendar.getTime());
+		ResetTokenEntity resetRequest = new ResetTokenEntity(dbUserEntity.getUsername(), uuid.toString(), calendar.getTime());
 		resetRepository.save(resetRequest);
 		new AutomatedEmailer(user.getEmail(), EmailMessages.RESET_PASSWORD_SUBJECT, EmailMessages.FORGOT_PASSWORD_STARTER 
-				+ dbUser.getUsername().toUpperCase() + EmailMessages.FORGOT_PASSWORD_MESSAGE + url.toString());
+				+ dbUserEntity.getUsername().toUpperCase() + EmailMessages.FORGOT_PASSWORD_MESSAGE + url.toString());
 	}
 	
 	@Override
-	public void changeForgottenPassword(ResetToken token) throws Exception {
-		ResetToken resetRequest = resetRepository.findByToken(token.getToken());
+	public void changeForgottenPassword(ResetTokenEntity token) throws Exception {
+		ResetTokenEntity resetRequest = resetRepository.findByToken(token.getToken());
 		if(resetRequest == null) {
 			throw new InvalidTokenException(ErrorMessages.INCORRECT_RESET_TOKEN);
 		}
 		Date expirationDate = resetRequest.getExpirationDate();
 		if(expirationDate.after(new Date())) {
-			User dbUser = userRepository.findByUsernameIgnoreCase(resetRequest.getUsername());
+			UserEntity dbUserEntity = userRepository.findByUsernameIgnoreCase(resetRequest.getUsername());
 			String newPassword = RandomStringUtils.random(8, true, true).toUpperCase();
-			new AutomatedEmailer(dbUser.getEmail(), EmailMessages.RESET_PASSWORD_SUBJECT, EmailMessages.RESET_PASSWORD_MESSAGE1 + newPassword + EmailMessages.RESET_PASSWORD_MESSAGE2);
-			dbUser.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
-			userRepository.save(dbUser);
+			new AutomatedEmailer(dbUserEntity.getEmail(), EmailMessages.RESET_PASSWORD_SUBJECT, EmailMessages.RESET_PASSWORD_MESSAGE1 + newPassword + EmailMessages.RESET_PASSWORD_MESSAGE2);
+			dbUserEntity.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
+			userRepository.save(dbUserEntity);
 			resetRepository.delete(resetRequest);
 		} else {
 			throw new InvalidTokenException(ErrorMessages.EXPIRED_TOKEN);

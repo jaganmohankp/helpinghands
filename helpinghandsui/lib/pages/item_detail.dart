@@ -1,8 +1,16 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:helpinghandsui/config.dart';
+import 'package:http/http.dart' as http;
+import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:snippet_coder_utils/hex_color.dart';
 
 class ItemDetail extends StatefulWidget {
+
+  String username;
+  String  accessToken;
   int itemId;
   String imagepath;
   String itemtype;
@@ -16,7 +24,7 @@ class ItemDetail extends StatefulWidget {
   String itemlocation;
   String alluser;
 
-  ItemDetail ({required this.itemId,required this.imagepath,required this.itemtype,required this.itemname,
+  ItemDetail ({required this.username,required this.accessToken,required this.itemId,required this.imagepath,required this.itemtype,required this.itemname,
     required this.description,required this.adminapproval,
     required this.donorname,required this.recievername,required this.itemphone,
     required this.itemaddress,required this.itemlocation,required this.alluser,
@@ -25,13 +33,17 @@ class ItemDetail extends StatefulWidget {
 
 
   @override
-  State<ItemDetail> createState() => _ItemDetailState(itemId:itemId,imagepath:imagepath,itemtype:itemtype,itemname:itemname,
+  State<ItemDetail> createState() => _ItemDetailState(username:username,accessToken:accessToken,
+      itemId:itemId,imagepath:imagepath,itemtype:itemtype,itemname:itemname,
       description:description ,adminapproval:adminapproval,
       donorname:donorname,recievername:recievername,itemphone:itemphone,
       itemaddress:itemaddress,itemlocation:itemlocation,alluser:alluser);
 }
 
 class _ItemDetailState extends State<ItemDetail> {
+
+  String username;
+  String accessToken;
   int itemId;
   String imagepath;
   String itemtype;
@@ -45,7 +57,8 @@ class _ItemDetailState extends State<ItemDetail> {
   String itemlocation;
   String alluser;
 
-  _ItemDetailState({required this.itemId,required this.imagepath,required this.itemtype,required this.itemname,
+  _ItemDetailState({required this.username,required this.accessToken,
+    required this.itemId,required this.imagepath,required this.itemtype,required this.itemname,
     required this.description,required this.adminapproval,
     required this.donorname,required this.recievername,required this.itemphone,
     required this.itemaddress,required this.itemlocation,required this.alluser,
@@ -182,7 +195,7 @@ class _ItemDetailState extends State<ItemDetail> {
             SizedBox(height: 20.0),
 
             Center(
-                child: "user" == "user"? Container(
+                child: alluser.contains(username)? Container(
                     width: MediaQuery.of(context).size.width - 50.0,
                     height: 50.0,
                     decoration: BoxDecoration(
@@ -209,8 +222,65 @@ class _ItemDetailState extends State<ItemDetail> {
                         color: HexColor("#283B71")
                     ),
                     child: InkWell(
-                      onTap: (){
+                      onTap: () async {
                         //send interest to DB
+                        if(alluser.trim().contains(username)){
+                          //ignore
+                          print("submitting alluser item api ignore ");
+                        }else{
+                          print("submitting alluser item api: " +alluser);
+                          alluser = alluser.isEmpty?username.trim():alluser.trim()+','+username.trim();
+
+                          print('${alluser[0]}');
+                          print("submitting alluser item api: " +alluser);
+                          // Api call to update item
+                          String reqtoken = 'Bearer '+accessToken;
+                          final response = await http.post(
+                            //Uri.parse('http://localhost:7000/apidb/myhome'),
+                            Uri.parse(Config.apiURL+Config.apimyitemalluser),
+                            headers: <String, String>{
+                              'Content-Type': 'application/json; charset=UTF-8',
+                              'Authorization': reqtoken
+                            },
+                            body: jsonEncode({
+
+                              "itemId": itemId,
+                              "alluser": alluser
+                            }),
+                          );
+                          if (response.statusCode == 200) {
+                            print("submitting notification response " +
+                                response.body);
+                            FormHelper.showSimpleAlertDialog(
+                              context,
+                              Config.appName,
+                                "Interest Sent",
+                              "OK",
+                                  () {
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+
+
+                              },
+                            );
+
+                          }else{
+                            FormHelper.showSimpleAlertDialog(
+                              context,
+                              Config.appName,
+                              "Error Try Again",
+                              "OK",
+                                  () {
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+
+
+                              },
+                            );
+                          }
+
+
+                        }
                       },
                       child: Center(
                           child: Text(itemtype == 'Donating'?"Request":"Donate",

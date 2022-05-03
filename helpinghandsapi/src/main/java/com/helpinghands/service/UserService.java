@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.helpinghands.model.PasswordDto;
 import com.helpinghands.model.AppUsersDto;
-import com.helpinghands.entity.User;
+import com.helpinghands.entity.UserEntity;
 
 /**
  * 
@@ -18,14 +18,14 @@ public interface UserService {
 	 * 
 	 * @return All the users that are found within the repository
 	 */
-	List<User> getAllUsers();
+	List<UserEntity> getAllUsers();
 
 	/**
 	 * 
 	 * @param username
 	 * @return The user details for the user that have the specified username within the repository
 	 */
-	User getUserDetails(final String username);
+	UserEntity getUserDetails(final String username);
 	
 	/**
 	 * Create a user with the details as specified by the user DTO

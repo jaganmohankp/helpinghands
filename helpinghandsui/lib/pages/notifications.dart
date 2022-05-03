@@ -1,14 +1,37 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:helpinghandsui/config.dart';
+import 'package:helpinghandsui/models/NotifyItem.dart';
 import 'package:snippet_coder_utils/hex_color.dart';
+import 'package:http/http.dart' as http;
+
 class Notifications extends StatefulWidget {
-  const Notifications({Key? key}) : super(key: key);
+  String username;
+  String email;
+  String  gender;
+  String accessToken;
+  List <NotificationsItem> allNotifyItem;
+
+  Notifications({ required this.username,required this.email,required this.gender,
+    required this.accessToken,required this.allNotifyItem});
 
   @override
-  State<Notifications> createState() => _NotificationsState();
+  State<Notifications> createState() => _NotificationsState(username:username,email:email,gender:gender,
+      accessToken:accessToken,allNotifyItem:allNotifyItem);
 }
 
 class _NotificationsState extends State<Notifications> {
+  String username;
+  String email;
+  String  gender;
+  String accessToken;
+  List <NotificationsItem> allNotifyItem;
+
+  List <NotificationsItem> localNotifyItem = [];
+  _NotificationsState({ required this.username,required this.email,required this.gender,
+    required this.accessToken,required this.allNotifyItem});
 
   List items = [
     {
@@ -27,8 +50,17 @@ class _NotificationsState extends State<Notifications> {
       "alluser": "sara111,sara123,sara222",
       "adminapproval": "Rejected"
     },
+
   ];
 
+
+
+  @override
+  void initState() {
+    super.initState();
+    localNotifyItem = allNotifyItem;
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +71,7 @@ class _NotificationsState extends State<Notifications> {
         backgroundColor: HexColor("283B71"),
       ),
       body: ListView.builder(
-          itemCount: items.length,
+          itemCount: localNotifyItem.length,
           itemBuilder: (BuildContext context,int index){
             return Padding(
               padding: const EdgeInsets.all(1.0),
@@ -47,22 +79,54 @@ class _NotificationsState extends State<Notifications> {
                   leading: Image(
                     fit: BoxFit.fill,
                     alignment: Alignment.center,
-                    image: AssetImage(items[index]["imagepath"]),
+                    image: AssetImage(localNotifyItem[index].imagepath),
                   ),
-                  trailing: items[index]["adminapproval"] == 'Rejected'?
-                  Text(items[index]["adminapproval"],
+                  trailing: localNotifyItem[index].adminapproval == 'Rejected'?
+                  Text(localNotifyItem[index].adminapproval,
                     style: TextStyle(
                         color: Colors.red,fontSize: 15),):
-                  Text(items[index]["adminapproval"],
+                  Text(localNotifyItem[index].adminapproval,
                   style: TextStyle(
                         color: Colors.green,fontSize: 15),),
 
 
-                  title:Text(items[index]["itemname"]),
-                  subtitle: Text(items[index]["recievername"]+' : '+ items[index]["itemtype"]),
-                onTap: (){
+                  title:Text(localNotifyItem[index].itemname),
+                  subtitle: Text(localNotifyItem[index].donorname == username ? "Donor: "+username +'  :  '+ allNotifyItem[index].status : "Reciever: "+ username + '  :  '+ allNotifyItem[index].status),
+                onTap: () async {
                   //db call for read
+                  localNotifyItem[index].status = "Read";
+                  print("submitting notification response " );
+                    int notifyId = localNotifyItem[index].notifyId;
+                  String reqtoken = 'Bearer '+accessToken;
+                  final notifyresponse = await http.post(
+                    // Uri.parse('http://localhost:7000/apidb/mylogin'),
+                    Uri.parse( Config.apiURL+Config.apimynotifyread),
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                      'authorization': reqtoken
+                    },
+                    body: jsonEncode({
+                      "username": username,
+                      "notifyId":notifyId
 
+                    }),
+                  );
+                  if (notifyresponse.statusCode == 200) {
+                    print("submitting notification response 200 " +
+                        notifyresponse.body);
+                    NotifyItem notifyItem = NotifyItem.fromJson(
+                        jsonDecode(notifyresponse.body));
+                    setState(() {
+
+                      allNotifyItem.clear();
+
+                      allNotifyItem = notifyItem.notificationsItem;
+                      localNotifyItem = allNotifyItem;
+
+                    });
+
+
+                  }
                 },
                 //tileColor: Colors.red,
               ),

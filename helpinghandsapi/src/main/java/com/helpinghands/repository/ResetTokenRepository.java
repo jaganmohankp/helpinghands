@@ -2,10 +2,10 @@ package com.helpinghands.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.helpinghands.entity.ResetToken;
+import com.helpinghands.entity.ResetTokenEntity;
 
-public interface ResetTokenRepository extends JpaRepository<ResetToken, Long> {
+public interface ResetTokenRepository extends JpaRepository<ResetTokenEntity, Long> {
 	
-	ResetToken findByToken(String token);
+	ResetTokenEntity findByToken(String token);
 
 }

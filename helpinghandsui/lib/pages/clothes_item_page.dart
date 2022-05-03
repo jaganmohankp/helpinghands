@@ -71,6 +71,8 @@ class _ClothesItemPageState extends State<ClothesItemPage> with SingleTickerProv
               onTap: () {
                 Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => ItemDetail(
+                        username:username,
+                        accessToken:accessToken,
                         itemId: clothitems[index].itemId,
                         imagepath: clothitems[index].imagepath,
                         itemtype: clothitems[index].itemtype,
@@ -156,6 +158,13 @@ class _ClothesItemPageState extends State<ClothesItemPage> with SingleTickerProv
                                     fontSize: 11.0,
                                     fontWeight: FontWeight.bold,
                                     color: HexColor("#283B71"))),
+                            SizedBox(width: 45.0),
+                            clothitems[index].alluser.contains(username)?
+                            Icon(Icons.thumb_up,
+                                color: HexColor("283B71"), size: 20.0):
+                            Icon(Icons.thumb_up_alt_outlined,
+                                color: HexColor("283B71"), size: 20.0),
+                            SizedBox(height: 10.0),
                           ],
                         ),
                       ),

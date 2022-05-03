@@ -96,7 +96,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
 
         String reqtoken = 'Bearer '+accessToken;
         final response = await http.post(
-          //Uri.parse('http://192.168.1.6:7000/apidb/mydrawer'),
+          //Uri.parse('http://localhost:7000/apidb/mydrawer'),
           Uri.parse(Config.apiURL+ Config.apimydrawer),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -119,18 +119,20 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
           myreqitem.clear();
           mydonitem.clear();
 
+          setState(() {
+
 
           myitem = userlogin.items;
           if(userlogin.items.length > 0){
             myreqitem = [];
             mydonitem = [];
 
-            myitem.forEach((element) async {
-              if(element.itemtype == 'Requesting'){
+            myitem.forEach((element)  {
+              if(element.recievername == username){
                 print("Adding  request item ");
                 myreqitem.add(element);
               }
-              if(element.itemtype == 'Donating'){
+              if(element.donorname == username ){
                 print("Adding  Donate item ");
                 mydonitem.add(element);
               }
@@ -149,6 +151,8 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
           print("donated item");
           print( mydonitem.length);
 
+
+          });
 
         }
 

@@ -9,7 +9,7 @@ class LoginServices {
 
     print(" remote api call init");
     var client = http.Client();
-    var uri = Uri.parse('http://192.168.1.6:7000/apidb/dbuser');
+    var uri = Uri.parse('http://localhost:7000/apidb/dbuser');
     var response = await client.get(uri);
     if (response.statusCode == 200){
       var json = response.body;

@@ -8,7 +8,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.helpinghands.entity.User;
+import com.helpinghands.entity.UserEntity;
 import com.helpinghands.model.AppUsersDto;
 import com.helpinghands.repository.UserRepository;
 import com.helpinghands.service.UserService;
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
 	/**
 	 * Retrieve all the users within the repository
 	 */
-	public List<User> getAllUsers() {
+	public List<UserEntity> getAllUsers() {
 		// TODO Auto-generated method stub
 		return userRepository.findAll();
 	}
@@ -43,13 +43,13 @@ public class UserServiceImpl implements UserService {
 	/**
 	 * Retrieve the user details for the user that has the specified username
 	 */
-	public User getUserDetails(String username) {
+	public UserEntity getUserDetails(String username) {
 		// TODO Auto-generated method stub
-		User dbUser = userRepository.findByUsernameIgnoreCase(username);
-		if(dbUser == null) {
+		UserEntity dbUserEntity = userRepository.findByUsernameIgnoreCase(username);
+		if(dbUserEntity == null) {
 			throw new UserException(ErrorMessages.NO_SUCH_USER);
 		}
-		return dbUser;
+		return dbUserEntity;
 	}
 
 	/**
@@ -62,14 +62,14 @@ public class UserServiceImpl implements UserService {
 		if(emailParts != null){
 			username = emailParts[0];
 		}
-		User dbUser = userRepository.findByUsernameIgnoreCase(username);
-		if(dbUser != null) {
+		UserEntity dbUserEntity = userRepository.findByUsernameIgnoreCase(username);
+		if(dbUserEntity != null) {
 			throw new UserException(ErrorMessages.USER_ALREADY_EXISTS);
 		}
-		dbUser = EntityManager.transformUserDTO(user);
-		dbUser.setPassword(BCrypt.hashpw(dbUser.getPassword(), BCrypt.gensalt()));
-		dbUser.setRole(Constants.Normal);
-		userRepository.save(dbUser);
+		dbUserEntity = EntityManager.transformUserDTO(user);
+		dbUserEntity.setPassword(BCrypt.hashpw(dbUserEntity.getPassword(), BCrypt.gensalt()));
+		dbUserEntity.setRole(Constants.Normal);
+		userRepository.save(dbUserEntity);
 	}
 
 	/**
@@ -82,21 +82,21 @@ public class UserServiceImpl implements UserService {
 		if(emailParts != null){
 			username = emailParts[0];
 		}
-		User dbUser = userRepository.findByUsernameIgnoreCase(username);
-		if(dbUser == null) {
+		UserEntity dbUserEntity = userRepository.findByUsernameIgnoreCase(username);
+		if(dbUserEntity == null) {
 			throw new UserException(ErrorMessages.NO_SUCH_USER);
 		}
-		User newUserDetails = EntityManager.transformUserDTO(user);
-		String newName = newUserDetails.getUsername();
-		String newEmail = newUserDetails.getEmail();
+		UserEntity newUserDetailsEntity = EntityManager.transformUserDTO(user);
+		String newName = newUserDetailsEntity.getUsername();
+		String newEmail = newUserDetailsEntity.getEmail();
 		if(newName != null && !newName.isEmpty()) {
-			dbUser.setUsername(newName);
+			dbUserEntity.setUsername(newName);
 		}
 		if(newEmail != null && !newEmail.isEmpty()) {
-			dbUser.setEmail(newEmail);
+			dbUserEntity.setEmail(newEmail);
 		}
 
-		userRepository.save(dbUser);
+		userRepository.save(dbUserEntity);
 	}
 
 	/**
@@ -104,11 +104,11 @@ public class UserServiceImpl implements UserService {
 	 */
 	public void deleteUser(String username) {
 		// TODO Auto-generated method stub
-		User dbUser = userRepository.findByUsernameIgnoreCase(username);
-		if(dbUser == null) {
+		UserEntity dbUserEntity = userRepository.findByUsernameIgnoreCase(username);
+		if(dbUserEntity == null) {
 			throw new UserException(ErrorMessages.NO_SUCH_USER);
 		}
-		userRepository.delete(dbUser);
+		userRepository.delete(dbUserEntity);
 	}
 
 	/**
@@ -121,13 +121,13 @@ public class UserServiceImpl implements UserService {
 		if(emailParts != null){
 			username = emailParts[0];
 		}
-		User dbUser = userRepository.findByUsernameIgnoreCase(username);
-		if(dbUser == null) {
+		UserEntity dbUserEntity = userRepository.findByUsernameIgnoreCase(username);
+		if(dbUserEntity == null) {
 			throw new UserException(ErrorMessages.NO_SUCH_USER);
 		}
-		if(BCrypt.checkpw(passwordDetails.getOldPassword(), dbUser.getPassword())) {
-			dbUser.setPassword(BCrypt.hashpw(passwordDetails.getNewPassword(), BCrypt.gensalt()));
-			userRepository.save(dbUser);
+		if(BCrypt.checkpw(passwordDetails.getOldPassword(), dbUserEntity.getPassword())) {
+			dbUserEntity.setPassword(BCrypt.hashpw(passwordDetails.getNewPassword(), BCrypt.gensalt()));
+			userRepository.save(dbUserEntity);
 			return true;
 		}
 		return false;

@@ -72,6 +72,8 @@ class _EducationItemPageState extends State<EducationItemPage> with SingleTicker
               onTap: () {
                 Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => ItemDetail(
+                        username:username,
+                        accessToken:accessToken,
                         itemId: eduitems[index].itemId,
                         imagepath: eduitems[index].imagepath,
                         itemtype: eduitems[index].itemtype,
@@ -157,6 +159,13 @@ class _EducationItemPageState extends State<EducationItemPage> with SingleTicker
                                     fontSize: 11.0,
                                     fontWeight: FontWeight.bold,
                                     color: HexColor("#283B71"))),
+                            SizedBox(width: 45.0),
+                            eduitems[index].alluser.contains(username)?
+                            Icon(Icons.thumb_up,
+                                color: HexColor("283B71"), size: 20.0):
+                            Icon(Icons.thumb_up_alt_outlined,
+                                color: HexColor("283B71"), size: 20.0),
+                            SizedBox(height: 10.0),
                           ],
                         ),
                       ),

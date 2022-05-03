@@ -1,9 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:helpinghandsui/config.dart';
+import 'package:http/http.dart' as http;
+import 'package:helpinghandsui/models/ItemPost.dart';
+import 'package:snippet_coder_utils/FormHelper.dart';
 
 import 'package:snippet_coder_utils/hex_color.dart';
 
 class UserItemDetail extends StatefulWidget {
   int itemId;
+  String accessToken;
+  String username;
   String imagepath;
   String itemtype;
   String itemname;
@@ -15,7 +23,9 @@ class UserItemDetail extends StatefulWidget {
   String itemaddress;
   String itemlocation;
 
-  UserItemDetail ({required this.itemId,required this.imagepath,required this.itemtype,required this.itemname,
+  UserItemDetail ({required this.itemId,required this.accessToken,
+    required this.username, required this.imagepath,
+    required this.itemtype,required this.itemname,
     required this.description,required this.adminapproval,
     required this.donorname,required this.recievername,required this.itemphone,
     required this.itemaddress,required this.itemlocation,
@@ -24,7 +34,9 @@ class UserItemDetail extends StatefulWidget {
 
 
   @override
-  State<UserItemDetail> createState() => _UserItemDetailState(itemId:itemId,imagepath:imagepath,itemtype:itemtype,itemname:itemname,
+  State<UserItemDetail> createState() => _UserItemDetailState(itemId:itemId,accessToken:accessToken,
+      username:username,imagepath:imagepath,
+      itemtype:itemtype,itemname:itemname,
       description:description ,adminapproval:adminapproval,
       donorname:donorname,recievername:recievername,itemphone:itemphone,
       itemaddress:itemaddress,itemlocation:itemlocation);
@@ -32,6 +44,8 @@ class UserItemDetail extends StatefulWidget {
 
 class _UserItemDetailState extends State<UserItemDetail> {
   int itemId;
+  String accessToken;
+  String username;
   String imagepath;
   String itemtype;
   String itemname;
@@ -44,7 +58,9 @@ class _UserItemDetailState extends State<UserItemDetail> {
   String itemlocation;
 
 
-  _UserItemDetailState({required this.itemId,required this.imagepath,required this.itemtype,required this.itemname,
+  _UserItemDetailState({required this.itemId,required this.accessToken,
+    required this.username,required this.imagepath,
+    required this.itemtype,required this.itemname,
     required this.description,required this.adminapproval,
   required this.donorname,required this.recievername,required this.itemphone,
   required this.itemaddress,required this.itemlocation,
@@ -86,7 +102,7 @@ class _UserItemDetailState extends State<UserItemDetail> {
           children: [
             SizedBox(height: 15.0),
             Center(
-              child: Text(itemtype,
+              child: Text(donorname==username?"Donating":"Recieving",
                   style: TextStyle(
                       fontFamily: 'Varela',
                       fontSize: 22.0,
@@ -110,7 +126,7 @@ class _UserItemDetailState extends State<UserItemDetail> {
                       color: HexColor("#283B71"),
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Varela',
-                      fontSize: 22.0)),
+                      fontSize: 20.0)),
             ),
             SizedBox(height: 10.0),
             Center(
@@ -127,23 +143,8 @@ class _UserItemDetailState extends State<UserItemDetail> {
               ),
             ),
 
-            SizedBox(height: 15.0),
-            Padding(
-              padding: EdgeInsets.only(left: 20.0),
-              child: Row(
-                children: [
-                  Icon(Icons.person,
-                        color: HexColor("283B71"), size: 30.0),
-                  Text(itemtype == 'Donating'?"Reciever: "+recievername:"Donor: "+donorname,
-                      style: TextStyle(
-                          fontFamily: 'Varela',
-                          fontSize: 22.0,
-                          fontWeight: FontWeight.bold,
-                          color: HexColor("#283B71"))),
-                ],
-              ),
-            ),
-            SizedBox(height: 15.0),
+            SizedBox(height: 10.0),
+
             Padding(
               padding: EdgeInsets.only(left: 20.0),
 
@@ -163,7 +164,7 @@ class _UserItemDetailState extends State<UserItemDetail> {
                 ],
               ),
             ),
-            SizedBox(height: 15.0),
+            SizedBox(height: 10.0),
             Padding(
               padding: EdgeInsets.only(left: 20.0),
               child: Row(
@@ -173,13 +174,45 @@ class _UserItemDetailState extends State<UserItemDetail> {
                   Text(itemphone,
                       style: TextStyle(
                           fontFamily: 'Varela',
-                          fontSize: 22.0,
+                          fontSize: 20.0,
                           fontWeight: FontWeight.bold,
                           color: HexColor("#283B71"))),
                 ],
               ),
             ),
-            SizedBox(height: 20.0),
+            SizedBox(height: 10.0),
+            Padding(
+              padding: EdgeInsets.only(left: 20.0),
+              child: Row(
+                children: [
+                  Icon(Icons.person,
+                      color: HexColor("283B71"), size: 30.0),
+                  Text("Donor: "+donorname,
+                      style: TextStyle(
+                          fontFamily: 'Varela',
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: HexColor("#283B71"))),
+                ],
+              ),
+            ),
+            SizedBox(height: 10.0),
+            Padding(
+              padding: EdgeInsets.only(left: 20.0),
+              child: Row(
+                children: [
+                  Icon(Icons.person,
+                      color: HexColor("283B71"), size: 30.0),
+                  Text("Reciever: "+recievername,
+                      style: TextStyle(
+                          fontFamily: 'Varela',
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: HexColor("#283B71"))),
+                ],
+              ),
+            ),
+            SizedBox(height: 15.0),
 
             Padding(
               padding: EdgeInsets.only(left: 20.0),
@@ -194,6 +227,83 @@ class _UserItemDetailState extends State<UserItemDetail> {
                           fontWeight: FontWeight.bold,
                           color: HexColor("#283B71"))),
                 ],
+              ),
+            ),
+            SizedBox(height: 15.0),
+            InkWell(
+              onTap: () async {
+                //Api to delete
+                String reqtoken = 'Bearer '+accessToken;
+                final response = await http.post(
+                  //Uri.parse('http://localhost:7000/apidb/myitempost'),
+                  Uri.parse(Config.apiURL+Config.apimyitemdel),
+                  headers: <String, String>{
+                    'Content-Type': 'application/json; charset=UTF-8',
+                    'Authorization': reqtoken
+                  },
+                  body: jsonEncode({
+                    "itemId": itemId,
+                    "accessToken":accessToken
+
+                  }),
+                );
+                if (response.statusCode == 200) {
+                  print("submitting login response 200" + response.body);
+                  ItemPost itemPost = ItemPost.fromJson(
+                      jsonDecode(response.body));
+                  print("submitting item delete 200" + itemPost.myresult);
+                  print("submitting item delete 200" + itemPost.itemname);
+                  if (itemPost.myresult == 'Success') {
+                    FormHelper.showSimpleAlertDialog(
+                      context,
+                      Config.appName,
+                      itemPost.itemname + " Deleted",
+                      "OK",
+                          () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                        // Navigator.pop(context);
+
+                      },
+                    );
+                  } else {
+                    FormHelper.showSimpleAlertDialog(
+                      context,
+                      Config.appName,
+                      "DB Error",
+                      "OK",
+                          () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                        // Navigator.pop(context);
+
+                      },
+                    );
+                  }
+                }
+              },
+
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20.0,8.0,20.0,0.0),
+                child: Container(
+                    width: MediaQuery.of(context).size.width - 50.0,
+                    height: 50.0,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25.0),
+                        color: HexColor("#283B71")
+                    ),
+                    child: Center(
+                        child: Text('Delete',
+                          style: TextStyle(
+                              fontFamily: 'Varela',
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white
+                          ),
+                        )
+                    )
+
+                ),
               ),
             ),
 

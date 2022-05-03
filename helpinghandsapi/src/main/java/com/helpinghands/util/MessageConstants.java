@@ -18,6 +18,9 @@ public final class MessageConstants {
 	public static final String ITEM_CREATION_SUCCESS = "Item successfully created.";
 	public static final String ITEM_OVERWRITE_SUCCESS = "Item successfully updated.";
 	public static final String ITEM_UPDATE_SUCCESS = "Item quantity successfully updated.";
+
+	public static final String DONATION_ITEMS_CREATE_SUCCESS = "Donation Items successfully added.";
+	public static final String DONATION_ITEMS_UPDATE_SUCCESS = "Donation Items successfully updated.";
 	public static final String REQUEST_CREATE_SUCCESS = "Request successfully added.";
 	public static final String REQUEST_UPDATE_SUCCESS = "Request successfully updated.";
 	public static final String REQUEST_DELETE_SUCCESS = "Request successfully deleted.";

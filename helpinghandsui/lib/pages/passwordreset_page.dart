@@ -249,7 +249,7 @@ class _PasswordResetState extends State<PasswordReset> {
                 print("submitting login");
                final UserLogin userlogin;
                 final response = await http.post(
-                  //Uri.parse('http://192.168.1.6:7000/apidb/myreset'),
+                  //Uri.parse('http://localhost:7000/apidb/myreset'),
                   Uri.parse(Config.apiURL+Config.apimyreset),
                   headers: <String, String>{
                     'Content-Type': 'application/json; charset=UTF-8',

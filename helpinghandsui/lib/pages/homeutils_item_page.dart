@@ -70,6 +70,8 @@ class _HomeUtilsItemPageState extends State<HomeUtilsItemPage> with SingleTicker
               onTap: () {
                 Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => ItemDetail(
+                        username:username,
+                        accessToken:accessToken,
                         itemId: homeutilsitems[index].itemId,
                         imagepath: homeutilsitems[index].imagepath,
                         itemtype: homeutilsitems[index].itemtype,
@@ -131,12 +133,12 @@ class _HomeUtilsItemPageState extends State<HomeUtilsItemPage> with SingleTicker
                         child: Row(
                           children: [
                             Icon(Icons.person,
-                                color: HexColor("283B71"), size: 10.0),
+                                color: HexColor("283B71"), size: 15.0),
                             SizedBox(height: 7.0),
                             Text(homeutilsitems[index].itemtype == 'Donating'? homeutilsitems[index].donorname:homeutilsitems[index].recievername,
                                 style: TextStyle(
                                     fontFamily: 'Varela',
-                                    fontSize: 11.0,
+                                    fontSize: 14.0,
                                     fontWeight: FontWeight.bold,
                                     color: HexColor("#283B71"))),
                           ],
@@ -147,14 +149,21 @@ class _HomeUtilsItemPageState extends State<HomeUtilsItemPage> with SingleTicker
                         child: Row(
                           children: [
                             Icon(Icons.location_on,
-                                color: HexColor("283B71"), size: 10.0),
+                                color: HexColor("283B71"), size: 15.0),
                             SizedBox(height: 7.0),
                             Text(homeutilsitems[index].itemlocation,
                                 style: TextStyle(
                                     fontFamily: 'Varela',
-                                    fontSize: 11.0,
+                                    fontSize: 14.0,
                                     fontWeight: FontWeight.bold,
                                     color: HexColor("#283B71"))),
+                            SizedBox(width: 45.0),
+                            homeutilsitems[index].alluser.contains(username)?
+                            Icon(Icons.thumb_up,
+                                color: HexColor("283B71"), size: 20.0):
+                            Icon(Icons.thumb_up_alt_outlined,
+                                color: HexColor("283B71"), size: 20.0),
+                            SizedBox(height: 10.0),
                           ],
                         ),
                       ),

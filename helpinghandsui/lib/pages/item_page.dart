@@ -42,6 +42,8 @@ class ItemPage extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => ItemDetail(
+                      username:"username",
+                      accessToken:"accessToken",
                       itemId: items[index].itemId,
                         imagepath: items[index].imagepath,
                         itemtype: items[index].itemtype,

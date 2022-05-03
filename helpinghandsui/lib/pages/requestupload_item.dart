@@ -15,11 +15,13 @@ class Requestuploaditem extends StatefulWidget {
   String email;
   String gender;
   String accessToken;
-  Requestuploaditem({required this.username,required this.email,required this.gender,required this.accessToken});
+  Requestuploaditem({required this.username,required this.email,
+    required this.gender,required this.accessToken});
 
 
   @override
-  State<Requestuploaditem> createState() => _RequestuploaditemState(username:username,email:email,gender:gender,accessToken:accessToken);
+  State<Requestuploaditem> createState() => _RequestuploaditemState(username:username,email:email,
+      gender:gender,accessToken:accessToken);
 }
 
 class _RequestuploaditemState extends State<Requestuploaditem> {
@@ -27,12 +29,13 @@ class _RequestuploaditemState extends State<Requestuploaditem> {
   String email;
   String gender;
   String accessToken;
-  _RequestuploaditemState({required this.username,required this.email,required this.gender,required this.accessToken});
+  _RequestuploaditemState({required this.username,required this.email,required this.gender,
+    required this.accessToken});
 
   String dropdownvalue = 'MainCategory';
   String sdropdownvalue = 'SubCategory';
 
-  var items =  ['MainCategory','Education','Food','HomeUtils','Cloths'];
+  var items =  ['MainCategory','Education','Food','HomeUtils','Clothes'];
 
   var subitems = ['SubCategory'];
 
@@ -42,6 +45,8 @@ class _RequestuploaditemState extends State<Requestuploaditem> {
   TextEditingController _PhoneController = TextEditingController();
   TextEditingController _AddressController = TextEditingController();
   TextEditingController _CityController = TextEditingController();
+  String NAuser='NotAssigned';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,7 +107,7 @@ class _RequestuploaditemState extends State<Requestuploaditem> {
                               sdropdownvalue = 'LEDTv';
                               print("inside sub drop down "+ subitems.first);
                             }
-                            if (dropdownvalue == 'Cloths'){
+                            if (dropdownvalue == 'Clothes'){
                               subitems = ['MenDress','WomenDress','KidsDress','BabyDress','ElderlyDress'];
                               sdropdownvalue = 'MenDress';
                               print("inside sub drop down "+ subitems.first);
@@ -213,6 +218,7 @@ class _RequestuploaditemState extends State<Requestuploaditem> {
                         );
 
                       }else {
+
                         print(nameController.text.trim());
                         print(dropdownvalue.trim());
                         print(sdropdownvalue.trim());
@@ -222,7 +228,7 @@ class _RequestuploaditemState extends State<Requestuploaditem> {
                         print(_CityController.text.trim());
                         String reqtoken = 'Bearer '+accessToken;
                         final response = await http.post(
-                          //Uri.parse('http://192.168.1.6:7000/apidb/myitempost'),
+                          //Uri.parse('http://localhost:7000/apidb/myitempost'),
                           Uri.parse(Config.apiURL+Config.apimyitempost),
                           headers: <String, String>{
                             'Content-Type': 'application/json; charset=UTF-8',
@@ -237,12 +243,12 @@ class _RequestuploaditemState extends State<Requestuploaditem> {
                           "scat":sdropdownvalue.trim(),
                           "description":_DescController.text.trim(),
                           "imagepath":"assets/images/"+sdropdownvalue.trim()+".jpg",
-                          "donorname":"Not Assigned",
+                          "donorname": NAuser,
                           "recievername":username,
                           "itemaddress":_AddressController.text.trim(),
                           "itemlocation":_CityController.text.trim(),
                           "itemphone":_PhoneController.text.trim(),
-                          "alluser":"  ".trim(),
+                          "alluser":NAuser,
                           "adminapproval":"Pending"
 
 

@@ -67,6 +67,8 @@ class _FoodItemPageState extends State<FoodItemPage> with SingleTickerProviderSt
               onTap: () {
                 Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => ItemDetail(
+                        username:username,
+                        accessToken:accessToken,
                         itemId: fooditems[index].itemId,
                         imagepath: fooditems[index].imagepath,
                         itemtype: fooditems[index].itemtype,
@@ -152,6 +154,13 @@ class _FoodItemPageState extends State<FoodItemPage> with SingleTickerProviderSt
                                     fontSize: 11.0,
                                     fontWeight: FontWeight.bold,
                                     color: HexColor("#283B71"))),
+                            SizedBox(width: 45.0),
+                            fooditems[index].alluser.contains(username)?
+                            Icon(Icons.thumb_up,
+                                color: HexColor("283B71"), size: 20.0):
+                            Icon(Icons.thumb_up_alt_outlined,
+                                color: HexColor("283B71"), size: 20.0),
+                            SizedBox(height: 10.0),
                           ],
                         ),
                       ),

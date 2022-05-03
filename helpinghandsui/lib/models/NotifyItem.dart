@@ -34,6 +34,7 @@ class NotificationsItem {
     required this.donorname,
     required this.recievername,
     required this.itemname,
+    required this.imagepath,
     required this.adminapproval,
     required this.status,
   });
@@ -42,6 +43,7 @@ class NotificationsItem {
   String donorname;
   String recievername;
   String itemname;
+  String imagepath;
   String adminapproval;
   String status;
 
@@ -50,6 +52,7 @@ class NotificationsItem {
     donorname: json["donorname"],
     recievername: json["recievername"],
     itemname: json["itemname"],
+    imagepath: json["imagepath"],
     adminapproval: json["adminapproval"],
     status: json["status"],
   );
@@ -59,6 +62,7 @@ class NotificationsItem {
     "donorname": donorname,
     "recievername": recievername,
     "itemname": itemname,
+    "imagepath": imagepath,
     "adminapproval": adminapproval,
     "status": status,
   };

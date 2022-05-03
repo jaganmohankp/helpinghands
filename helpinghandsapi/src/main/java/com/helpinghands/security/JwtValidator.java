@@ -3,7 +3,7 @@ package com.helpinghands.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.helpinghands.entity.User;
+import com.helpinghands.entity.UserEntity;
 import com.helpinghands.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -37,18 +37,18 @@ public class JwtValidator {
 	}
 	*/
 	
-	public User validateUser(String token) {
-		User user = null;
+	public UserEntity validateUser(String token) {
+		UserEntity userEntity = null;
 		try {
 			Claims body = Jwts.parser()
 					.setSigningKey(secret)
 					.parseClaimsJws(token)
 					.getBody();
-			user = userRepository.findByUsernameIgnoreCase(body.getSubject());
+			userEntity = userRepository.findByUsernameIgnoreCase(body.getSubject());
 		} catch (Exception e) {
 			System.out.println(e.getStackTrace());
 		}
-		return user;
+		return userEntity;
 	}
 
 }

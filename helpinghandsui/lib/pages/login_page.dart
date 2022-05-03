@@ -233,7 +233,7 @@ class _LoginState extends State<Login> {
                 if (lmyemail.trim() != "" && lmypass.trim() != "") {
                   print("submitting login");
                   final response = await http.post(
-                   // Uri.parse('http://192.168.1.6:7000/apidb/mylogin'),
+                   // Uri.parse('http://localhost:7000/apidb/mylogin'),
                       Uri.parse( Config.apiURL+Config.apimylogin),
                     headers: <String, String>{
                       'Content-Type': 'application/json; charset=UTF-8',
@@ -278,15 +278,18 @@ class _LoginState extends State<Login> {
                       }
                     });
                             if (userlogin.myresult.contains('Authenticated') ) {
-                              //Api for Notification
+                              print("submitting notification response " );
+                              String reqtoken = 'Bearer '+userlogin.accessToken;
                               final response = await http.post(
-                                // Uri.parse('http://192.168.1.6:7000/apidb/mylogin'),
+                                // Uri.parse('http://localhost:7000/apidb/mylogin'),
                                 Uri.parse( Config.apiURL+Config.apimynotify),
                                 headers: <String, String>{
                                   'Content-Type': 'application/json; charset=UTF-8',
+                                  'authorization': reqtoken
                                 },
                                 body: jsonEncode(<String, String>{
-                                  "username": userlogin.username
+                                  "username": userlogin.username,
+
 
                                 }),
                               );
@@ -296,8 +299,7 @@ class _LoginState extends State<Login> {
                                     response.body);
                                 NotifyItem notifyItem = NotifyItem.fromJson(
                                     jsonDecode(response.body));
-                                List <
-                                    NotificationsItem> notificationsItem = notifyItem
+                                List <NotificationsItem> notificationsItem = notifyItem
                                     .notificationsItem;
 
 
@@ -314,7 +316,7 @@ class _LoginState extends State<Login> {
                                             notificationsItem: notificationsItem),
                                   ),
                                 );
-                              }
+                              } //if chk for notify status 200
                             } else {
                               print("submitting login response Not Authenticated " );
                                FormHelper.showSimpleAlertDialog(
